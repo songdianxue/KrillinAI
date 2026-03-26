@@ -3,7 +3,9 @@
 
 ; Define constants
 !define PRODUCT_NAME "KrillinAI"
-!define PRODUCT_VERSION "1.4.0"
+!ifndef PRODUCT_VERSION
+  !define PRODUCT_VERSION "1.4.0"
+!endif
 !define PRODUCT_PUBLISHER "KrillinAI"
 !define PRODUCT_WEB_SITE "https://github.com/krillinai/KrillinAI"
 
