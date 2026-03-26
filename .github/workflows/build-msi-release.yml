@@ -1,0 +1,57 @@
+name: Build and Release MSI
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-msi:
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+      
+      - name: Extract version
+        id: version
+        run: |
+          $TAG="${{ github.ref }}".Substring("refs/tags/v".Length)
+          echo "VERSION=$TAG" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+      
+      - name: Build Windows binary (Desktop)
+        run: |
+          mkdir -p build
+          $env:CGO_ENABLED = "0"
+          go build -v -o build/KrillinAI.exe -ldflags "-X main.Version=${{ steps.version.outputs.VERSION }}" ./cmd/desktop
+      
+      - name: Install NSIS
+        run: choco install nsis -y
+      
+      - name: Build NSIS installer
+        run: |
+          $env:PRODUCT_VERSION = "${{ steps.version.outputs.VERSION }}"
+          # Create a temporary NSIS script with the version substituted
+          (Get-Content installer/krillinai.nsi) -replace 'PRODUCT_VERSION "1.4.0"', "PRODUCT_VERSION `"${{ steps.version.outputs.VERSION }}`"" | Set-Content installer/krillinai_build.nsi
+          
+          makensis /V2 installer/krillinai_build.nsi
+          
+          # Move the built installer to build folder
+          if (Test-Path "installer/KrillinAI_${{ steps.version.outputs.VERSION }}_Windows_Setup.exe") {
+            Move-Item -Path "installer/KrillinAI_${{ steps.version.outputs.VERSION }}_Windows_Setup.exe" -Destination "build/"
+          }
+      
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ github.ref_name }}
+          name: Release ${{ steps.version.outputs.VERSION }}
+          draft: false
+          prerelease: false
+          artifacts: "build/*.exe"
+          token: ${{ secrets.GITHUB_TOKEN }}
