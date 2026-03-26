@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" Name="KrillinAI" Language="1033" Version="1.0.0.0" Manufacturer="songdianxue" UpgradeCode="PUT-GUID-HERE">
+    <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine" />
+
+    <MajorUpgrade DowngradeErrorCondition="no" />
+
+    <MediaTemplate />
+
+    <Feature Id="ProductFeature" Title="KrillinAI" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+    </Feature>
+
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <Component Id="KrillinAI.exe" Guid="PUT-GUID-HERE">
+        <File Id="KrillinAI.exe" Source="path\to\KrillinAI.exe" />
+      </Component>
+    </ComponentGroup>
+  </Product>
+</Wix>
