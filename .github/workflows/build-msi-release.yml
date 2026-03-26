@@ -27,7 +27,7 @@ jobs:
       - name: Build Windows binary (Desktop)
         run: |
           mkdir -p build
-          $env:CGO_ENABLED = "0"
+          $env:CGO_ENABLED = "1"
           go build -v -o build/KrillinAI.exe -ldflags "-X main.Version=${{ steps.version.outputs.VERSION }}" ./cmd/desktop
       
       - name: Install NSIS
